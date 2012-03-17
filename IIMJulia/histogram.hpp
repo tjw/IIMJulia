@@ -7,12 +7,13 @@
 //
 
 #import <stdlib.h>
+#import <assert.h>
 
 class Histogram {
 public:
     inline Histogram(unsigned long width, unsigned long height) {
         _width = width;
-        _height = _height;
+        _height = height;
         _buckets = (typeof(_buckets))calloc(sizeof(*_buckets), _width * _height);
     }
     
@@ -26,6 +27,18 @@ public:
     }
     inline unsigned long height(void) const {
         return _height;
+    }
+    
+    inline void increment(unsigned x, unsigned y) {
+        assert(x < _width);
+        assert(y < _height);
+        _buckets[y*_width + x]++;
+    }
+    
+    inline unsigned long count_at(unsigned x, unsigned y) const {
+        assert(x < _width);
+        assert(y < _height);
+        return _buckets[y*_width + x];
     }
     
 private:

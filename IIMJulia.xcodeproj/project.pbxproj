@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3401356A1515088700431F3D /* OmniFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 340135691515088700431F3D /* OmniFoundation.framework */; };
+		3419C595151529A500704386 /* image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3419C594151529A500704386 /* image.cpp */; };
 		34FC151A151500EE00719719 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34FC1519151500EE00719719 /* Cocoa.framework */; };
 		34FC1524151500EE00719719 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 34FC1522151500EE00719719 /* InfoPlist.strings */; };
 		34FC1526151500EE00719719 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 34FC1525151500EE00719719 /* main.m */; };
@@ -19,6 +20,9 @@
 
 /* Begin PBXFileReference section */
 		340135691515088700431F3D /* OmniFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = OmniFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3419C59315151DA700704386 /* julia.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = julia.hpp; sourceTree = "<group>"; };
+		3419C594151529A500704386 /* image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image.cpp; sourceTree = "<group>"; };
+		3419C596151529AC00704386 /* image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = image.hpp; sourceTree = "<group>"; };
 		34FC1515151500EE00719719 /* IIMJulia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IIMJulia.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		34FC1519151500EE00719719 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		34FC151C151500EE00719719 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -30,7 +34,7 @@
 		34FC1527151500EE00719719 /* IIMJulia-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IIMJulia-Prefix.pch"; sourceTree = "<group>"; };
 		34FC1529151500EE00719719 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		34FC152B151500EE00719719 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		34FC152C151500EE00719719 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		34FC152C151500EE00719719 /* AppDelegate.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = AppDelegate.m; sourceTree = "<group>"; };
 		34FC152F151500EE00719719 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		34FC1536151501F400719719 /* complex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = complex.hpp; sourceTree = "<group>"; };
 		34FC15381515027C00719719 /* julia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = julia.cpp; sourceTree = "<group>"; };
@@ -97,7 +101,10 @@
 				34FC1536151501F400719719 /* complex.hpp */,
 				34FC153A151504FB00719719 /* extent.hpp */,
 				34FC153B151505AE00719719 /* histogram.hpp */,
+				3419C59315151DA700704386 /* julia.hpp */,
 				34FC15381515027C00719719 /* julia.cpp */,
+				3419C596151529AC00704386 /* image.hpp */,
+				3419C594151529A500704386 /* image.cpp */,
 				34FC1520151500EE00719719 /* Supporting Files */,
 			);
 			path = IIMJulia;
@@ -182,6 +189,7 @@
 				34FC1526151500EE00719719 /* main.m in Sources */,
 				34FC152D151500EE00719719 /* AppDelegate.m in Sources */,
 				34FC15391515027C00719719 /* julia.cpp in Sources */,
+				3419C595151529A500704386 /* image.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
