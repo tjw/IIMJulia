@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:IIMJulia.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../../Omni/trunk/OmniGroup/Frameworks/OmniFoundation/OmniFoundation.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../../Omni/trunk/OmniGroup/Frameworks/OmniBase/OmniBase.xcodeproj">
+   </FileRef>
+</Workspace>
