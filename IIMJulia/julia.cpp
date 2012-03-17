@@ -14,7 +14,6 @@ extern "C" {
 #import <OmniFoundation/OFRandom.h>
 }
 
-Histogram *iim_julia_histogram(Extent xExtent, Extent yExtent, Complex c)
+void iim_julia_histogram(Complex c, Extent xExtent, Extent yExtent, Histogram *histogram)
 {
-    return NULL;
 }

@@ -21,6 +21,13 @@ public:
             free(_buckets);
     }
     
+    inline unsigned long width(void) const {
+        return _width;
+    }
+    inline unsigned long height(void) const {
+        return _height;
+    }
+    
 private:
     unsigned long _width, _height;
     unsigned long *_buckets;
