@@ -37,7 +37,7 @@
 		34FC152C151500EE00719719 /* AppDelegate.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = AppDelegate.m; sourceTree = "<group>"; };
 		34FC152F151500EE00719719 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		34FC1536151501F400719719 /* complex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = complex.hpp; sourceTree = "<group>"; };
-		34FC15381515027C00719719 /* julia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = julia.cpp; sourceTree = "<group>"; };
+		34FC15381515027C00719719 /* julia.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = julia.cpp; sourceTree = "<group>"; };
 		34FC153A151504FB00719719 /* extent.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = extent.hpp; sourceTree = "<group>"; };
 		34FC153B151505AE00719719 /* histogram.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = histogram.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */

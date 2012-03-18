@@ -8,6 +8,7 @@
 
 #import <stdlib.h>
 #import <assert.h>
+#import <string.h>
 
 class Histogram {
 public:
@@ -17,6 +18,13 @@ public:
         _buckets = (typeof(_buckets))calloc(sizeof(*_buckets), _width * _height);
     }
     
+    Histogram(const Histogram *original) {
+        _width = original->_width;
+        _height = original->_height;
+        _buckets = (typeof(_buckets))calloc(sizeof(*_buckets), _width * _height);
+        memcpy(_buckets, original->_buckets, sizeof(*_buckets) * _width * _height);
+    }
+
     inline ~Histogram() {
         if (_buckets)
             free(_buckets);
@@ -44,5 +52,7 @@ public:
 private:
     unsigned long _width, _height;
     unsigned long *_buckets;
+    
+    Histogram(const Histogram &); // No implicit copies
 };
 

@@ -9,6 +9,7 @@
 #import "julia.hpp"
 
 #import <stdio.h>
+#import <dispatch/dispatch.h>
 
 extern "C" {
 #import <OmniFoundation/OFRandom.h>
@@ -25,43 +26,63 @@ static Complex _iim_julia_preimage(OFRandomState *state, Complex u, Complex c)
     return w;
 }
 
-void iim_julia_histogram(Complex c, Extent xExtent, Extent yExtent, Histogram *histogram)
+void iim_julia_histogram(Complex c, Extent xExtent, Extent yExtent, unsigned long width, unsigned long height, iim_julia_histogram_result result)
 {
-    OFRandomState *state = OFRandomStateCreate();
+    assert(width > 0);
+    assert(height > 0);
+    assert(result);
     
-    double xStep = histogram->width() / xExtent.length();
-    double yStep = histogram->height() / yExtent.length();
+    dispatch_queue_t resultQueue = dispatch_get_current_queue();
+    dispatch_retain(resultQueue);
     
-    unsigned tries = 10000;
-    while (tries--) {
-        Complex u = Complex(OFRandomNextDouble(), OFRandomNextDouble());
-        //fprintf(stderr, "Try %f, %f\n", u.r, u.i);
+    result = [result copy];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        OFRandomState *state = OFRandomStateCreate();
+        Histogram *histogram = new Histogram(width, height);
         
-        // Skip the first few preimages while it settles down
-        unsigned skip = 20;
-        while (skip--) {
-            u = _iim_julia_preimage(state, u, c);
-            //fprintf(stderr, "  preimage %f, %f\n", u.r, u.i);
-        }
+        double xStep = histogram->width() / xExtent.length();
+        double yStep = histogram->height() / yExtent.length();
         
-        // Record some preimages into the histogram
-        unsigned int captures = 10000;
-        while (captures--) {
-            u = _iim_julia_preimage(state, u, c);
-            //fprintf(stderr, "  value %f, %f\n", u.r, u.i);
-            
-            if (!xExtent.contains(u.r) || !yExtent.contains(u.i)) {
-                //fprintf(stderr, "    outside\n");
-                continue;
+        while (YES) {
+            unsigned tries = 100;
+            while (tries--) {
+                Complex u = Complex(OFRandomNextDouble(), OFRandomNextDouble());
+                //fprintf(stderr, "Try %f, %f\n", u.r, u.i);
+                
+                // Skip the first few preimages while it settles down
+                unsigned skip = 20;
+                while (skip--) {
+                    u = _iim_julia_preimage(state, u, c);
+                    //fprintf(stderr, "  preimage %f, %f\n", u.r, u.i);
+                }
+                
+                // Record some preimages into the histogram
+                unsigned int captures = 10000;
+                while (captures--) {
+                    u = _iim_julia_preimage(state, u, c);
+                    //fprintf(stderr, "  value %f, %f\n", u.r, u.i);
+                    
+                    if (!xExtent.contains(u.r) || !yExtent.contains(u.i)) {
+                        //fprintf(stderr, "    outside\n");
+                        continue;
+                    }
+                    
+                    unsigned column = floor(xStep * (u.r - xExtent.min()));
+                    unsigned row = floor(yStep * (u.i - yExtent.min()));
+                    
+                    //fprintf(stderr, "    incr %u, %u\n", column, row);
+                    histogram->increment(column, row);
+                }
             }
             
-            unsigned column = floor(xStep * (u.r - xExtent.min()));
-            unsigned row = floor(yStep * (u.i - yExtent.min()));
-            
-            //fprintf(stderr, "    incr %u, %u\n", column, row);
-            histogram->increment(column, row);
+            const Histogram *resultHistogram = new Histogram(histogram);
+            dispatch_async(resultQueue, ^{
+                result(resultHistogram);
+                delete resultHistogram;
+            });
         }
-    }
-    
-    OFRandomStateDestroy(state);
+        
+        OFRandomStateDestroy(state);
+    });
 }

@@ -22,16 +22,13 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    // Insert code here to initialize your application
-    Histogram *H = new Histogram(800, 600);
-    iim_julia_histogram(Complex(-0.74543, 0.11301), Extent(-1.0, 1.0), Extent(-1.0, 1.0), H);
-
-    CGImageRef imageRef = create_bw_image(H);
-    NSImage *image = [[NSImage alloc] initWithCGImage:imageRef size:CGSizeMake(H->width(), H->height())];
-    _imageView.image = image;
-    
-    CFRelease(imageRef);
-    delete H;
+    iim_julia_histogram(Complex(-0.74543, 0.11301), Extent(-1.0, 1.0), Extent(-1.0, 1.0), 800, 600, ^(const Histogram *H){
+        CGImageRef imageRef = create_bw_image(H);
+        NSImage *image = [[NSImage alloc] initWithCGImage:imageRef size:CGSizeMake(H->width(), H->height())];
+        _imageView.image = image;
+        
+        CFRelease(imageRef);
+    });
 }
 
 @end
