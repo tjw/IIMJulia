@@ -32,7 +32,7 @@ void iim_julia_histogram(Complex c, Extent xExtent, Extent yExtent, Histogram *h
     double xStep = histogram->width() / xExtent.length();
     double yStep = histogram->height() / yExtent.length();
     
-    unsigned tries = 1000;
+    unsigned tries = 10000;
     while (tries--) {
         Complex u = Complex(OFRandomNextDouble(), OFRandomNextDouble());
         //fprintf(stderr, "Try %f, %f\n", u.r, u.i);
@@ -45,7 +45,7 @@ void iim_julia_histogram(Complex c, Extent xExtent, Extent yExtent, Histogram *h
         }
         
         // Record some preimages into the histogram
-        unsigned int captures = 1000;
+        unsigned int captures = 10000;
         while (captures--) {
             u = _iim_julia_preimage(state, u, c);
             //fprintf(stderr, "  value %f, %f\n", u.r, u.i);
