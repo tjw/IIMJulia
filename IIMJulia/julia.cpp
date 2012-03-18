@@ -27,7 +27,7 @@ static Complex _iim_julia_preimage(OFRandomState *state, Complex u, Complex c)
     return w;
 }
 
-void iim_julia_histogram(Complex c, Extent xExtent, Extent yExtent, unsigned long width, unsigned long height, iim_julia_histogram_result result)
+void iim_julia_histogram(Complex c, Extent xExtent, Extent::Component yCenter, unsigned long width, unsigned long height, iim_julia_histogram_result result)
 {
     assert(width > 0);
     assert(height > 0);
@@ -39,12 +39,16 @@ void iim_julia_histogram(Complex c, Extent xExtent, Extent yExtent, unsigned lon
     result = [result copy];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // Make the y-axis scale to the x-axis
+        Extent::Component yLength = (xExtent.length() / width) * height;
+        Extent yExtent(yCenter - yLength/2, yCenter + yLength/2);
+        
         CFAbsoluteTime lastNotifyTime = CFAbsoluteTimeGetCurrent();
         OFRandomState *state = OFRandomStateCreate();
         Histogram *histogram = new Histogram(width, height);
         
-        double xStep = histogram->width() / xExtent.length();
-        double yStep = histogram->height() / yExtent.length();
+        double xStep = width / xExtent.length();
+        double yStep = height / yExtent.length();
         
         while (YES) {
             unsigned tries = 100;
