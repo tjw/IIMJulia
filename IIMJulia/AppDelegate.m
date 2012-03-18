@@ -22,7 +22,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    iim_julia_histogram(Complex(-0.74543, 0.11301), Extent(-2.0, 2.0), 0.0/*yCenter*/, 1600, 1200, ^(const Histogram *H){
+    iim_julia_histogram(Complex(-0.74543, 0.11301), Extent(-1.55, 1.55), 0.0/*yCenter*/, 4*2048, 4*1536, ^(const Histogram *H){
         CGImageRef imageRef = create_bw_image(H);
         NSImage *image = [[NSImage alloc] initWithCGImage:imageRef size:CGSizeMake(H->width(), H->height())];
         _imageView.image = image;

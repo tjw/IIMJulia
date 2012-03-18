@@ -23,6 +23,7 @@
 		3419C59315151DA700704386 /* julia.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = julia.hpp; sourceTree = "<group>"; };
 		3419C594151529A500704386 /* image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image.cpp; sourceTree = "<group>"; };
 		3419C596151529AC00704386 /* image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = image.hpp; sourceTree = "<group>"; };
+		341FB461151674C4008557E4 /* grid.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = grid.hpp; sourceTree = "<group>"; };
 		34FC1515151500EE00719719 /* IIMJulia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IIMJulia.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		34FC1519151500EE00719719 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		34FC151C151500EE00719719 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -101,6 +102,7 @@
 				34FC1536151501F400719719 /* complex.hpp */,
 				34FC153A151504FB00719719 /* extent.hpp */,
 				34FC153B151505AE00719719 /* histogram.hpp */,
+				341FB461151674C4008557E4 /* grid.hpp */,
 				3419C59315151DA700704386 /* julia.hpp */,
 				34FC15381515027C00719719 /* julia.cpp */,
 				3419C596151529AC00704386 /* image.hpp */,

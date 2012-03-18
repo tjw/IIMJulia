@@ -6,53 +6,26 @@
 //  Copyright (c) 2012 Cocoatoa. All rights reserved.
 //
 
-#import <stdlib.h>
-#import <assert.h>
-#import <string.h>
+#import "grid.hpp"
 
-class Histogram {
+class Histogram : public Grid<unsigned long> {
 public:
-    inline Histogram(unsigned long width, unsigned long height) {
-        _width = width;
-        _height = height;
-        _buckets = (typeof(_buckets))calloc(sizeof(*_buckets), _width * _height);
+    inline Histogram(unsigned long width, unsigned long height) : Grid<unsigned long>(width, height) {
     }
     
-    Histogram(const Histogram *original) {
-        _width = original->_width;
-        _height = original->_height;
-        _buckets = (typeof(_buckets))calloc(sizeof(*_buckets), _width * _height);
-        memcpy(_buckets, original->_buckets, sizeof(*_buckets) * _width * _height);
-    }
-
-    inline ~Histogram() {
-        if (_buckets)
-            free(_buckets);
-    }
-    
-    inline unsigned long width(void) const {
-        return _width;
-    }
-    inline unsigned long height(void) const {
-        return _height;
+    inline Histogram(const Histogram *original) : Grid<unsigned long>(original) {
     }
     
     inline unsigned increment(unsigned x, unsigned y) {
-        assert(x < _width);
-        assert(y < _height);
-        return _buckets[y*_width + x]++;
+        unsigned long *bucket = set_at(x, y);
+        unsigned long count = *bucket + 1;
+        *bucket = count;
+        return count;
     }
     
     inline unsigned long count_at(unsigned x, unsigned y) const {
-        assert(x < _width);
-        assert(y < _height);
-        return _buckets[y*_width + x];
+        const unsigned long *bucket = get_at(x, y);
+        return *bucket;
     }
-    
-private:
-    unsigned long _width, _height;
-    unsigned long *_buckets;
-    
-    Histogram(const Histogram &); // No implicit copies
 };
 

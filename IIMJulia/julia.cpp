@@ -64,7 +64,7 @@ void iim_julia_histogram(Complex c, Extent xExtent, Extent::Component yCenter, u
                 }
                 
                 // Record some preimages into the histogram
-                unsigned int captures = 10000;
+                unsigned int captures = 1000000;
                 while (captures--) {
                     u = _iim_julia_preimage(state, u, c);
                     //fprintf(stderr, "  value %f, %f\n", u.r, u.i);
