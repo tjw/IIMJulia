@@ -37,10 +37,10 @@ public:
         return _height;
     }
     
-    inline void increment(unsigned x, unsigned y) {
+    inline unsigned increment(unsigned x, unsigned y) {
         assert(x < _width);
         assert(y < _height);
-        _buckets[y*_width + x]++;
+        return _buckets[y*_width + x]++;
     }
     
     inline unsigned long count_at(unsigned x, unsigned y) const {

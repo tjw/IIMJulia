@@ -10,6 +10,7 @@
 
 #import <stdio.h>
 #import <dispatch/dispatch.h>
+#import <CoreFoundation/CFDate.h>
 
 extern "C" {
 #import <OmniFoundation/OFRandom.h>
@@ -38,6 +39,7 @@ void iim_julia_histogram(Complex c, Extent xExtent, Extent yExtent, unsigned lon
     result = [result copy];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        CFAbsoluteTime lastNotifyTime = CFAbsoluteTimeGetCurrent();
         OFRandomState *state = OFRandomStateCreate();
         Histogram *histogram = new Histogram(width, height);
         
@@ -47,7 +49,7 @@ void iim_julia_histogram(Complex c, Extent xExtent, Extent yExtent, unsigned lon
         while (YES) {
             unsigned tries = 100;
             while (tries--) {
-                Complex u = Complex(OFRandomNextDouble(), OFRandomNextDouble());
+                Complex u = Complex(4 * OFRandomNextDouble() - 2, 4 * OFRandomNextDouble() - 2);
                 //fprintf(stderr, "Try %f, %f\n", u.r, u.i);
                 
                 // Skip the first few preimages while it settles down
@@ -72,15 +74,20 @@ void iim_julia_histogram(Complex c, Extent xExtent, Extent yExtent, unsigned lon
                     unsigned row = floor(yStep * (u.i - yExtent.min()));
                     
                     //fprintf(stderr, "    incr %u, %u\n", column, row);
-                    histogram->increment(column, row);
+                    if (histogram->increment(column, row) > 255)
+                        break; // This bucket is plenty full. Try a new random seed
                 }
             }
             
-            const Histogram *resultHistogram = new Histogram(histogram);
-            dispatch_async(resultQueue, ^{
-                result(resultHistogram);
-                delete resultHistogram;
-            });
+            CFAbsoluteTime currentTime = CFAbsoluteTimeGetCurrent();
+            if (currentTime - lastNotifyTime > 1) {
+                lastNotifyTime = currentTime;
+                const Histogram *resultHistogram = new Histogram(histogram);
+                dispatch_async(resultQueue, ^{
+                    result(resultHistogram);
+                    delete resultHistogram;
+                });
+            }
         }
         
         OFRandomStateDestroy(state);
