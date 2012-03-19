@@ -14,6 +14,7 @@
 @interface AppDelegate ()
 {
     Complex _c;
+    CGImageRef _imageRef;
     NSImage *_image;
 }
 
@@ -58,11 +59,10 @@
     _c = Complex(-0.74543, 0.11301);
     
     julia_miim(_c, Extent(-1.55, 1.55), 0.0/*yCenter*/, 4*2048, 4*1536, ^(const Histogram *H){
-        CGImageRef imageRef = create_bw_image(H);
-        _image = [[NSImage alloc] initWithCGImage:imageRef size:CGSizeMake(H->width(), H->height())];
+        CGImageRelease(_imageRef);
+        _imageRef = create_bw_image(H);
+        _image = [[NSImage alloc] initWithCGImage:_imageRef size:CGSizeMake(H->width(), H->height())];
         _imageView.image = _image;
-        
-        CFRelease(imageRef);
     });
 }
 
@@ -74,13 +74,12 @@
         if (result != NSFileHandlingPanelOKButton)
             return;
         
-        NSLog(@"reps = %@", [_image representations]);
-        
-        NSData *pngData = [NSBitmapImageRep representationOfImageRepsInArray:[_image representations] usingType:NSPNGFileType properties:nil];
-        NSError *error;
-        
-        if (![pngData writeToURL:[savePanel URL] options:NSDataWritingAtomic error:&error])
-            [_window presentError:error];
+        CGImageDestinationRef dest = CGImageDestinationCreateWithURL((__bridge CFURLRef)[savePanel URL], kUTTypePNG, 1, NULL/*options*/);
+        CGImageDestinationAddImage(dest, _imageRef, NULL/*properties*/);
+        if (!CGImageDestinationFinalize(dest)) {
+            NSLog(@"Unable to finalize destination.");
+        } else
+            CFRelease(dest);
     }];
 }
     
