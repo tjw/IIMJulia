@@ -9,13 +9,14 @@
 /* Begin PBXBuildFile section */
 		3401356A1515088700431F3D /* OmniFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 340135691515088700431F3D /* OmniFoundation.framework */; };
 		3419C595151529A500704386 /* image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3419C594151529A500704386 /* image.cpp */; };
+		341FB463151677F1008557E4 /* julia_miim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 341FB462151677F1008557E4 /* julia_miim.cpp */; };
 		34FC151A151500EE00719719 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34FC1519151500EE00719719 /* Cocoa.framework */; };
 		34FC1524151500EE00719719 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 34FC1522151500EE00719719 /* InfoPlist.strings */; };
 		34FC1526151500EE00719719 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 34FC1525151500EE00719719 /* main.m */; };
 		34FC152A151500EE00719719 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 34FC1528151500EE00719719 /* Credits.rtf */; };
 		34FC152D151500EE00719719 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 34FC152C151500EE00719719 /* AppDelegate.m */; };
 		34FC1530151500EE00719719 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 34FC152E151500EE00719719 /* MainMenu.xib */; };
-		34FC15391515027C00719719 /* julia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34FC15381515027C00719719 /* julia.cpp */; };
+		34FC15391515027C00719719 /* julia_random_iim.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34FC15381515027C00719719 /* julia_random_iim.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		3419C594151529A500704386 /* image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = image.cpp; sourceTree = "<group>"; };
 		3419C596151529AC00704386 /* image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = image.hpp; sourceTree = "<group>"; };
 		341FB461151674C4008557E4 /* grid.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = grid.hpp; sourceTree = "<group>"; };
+		341FB462151677F1008557E4 /* julia_miim.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = julia_miim.cpp; sourceTree = "<group>"; };
 		34FC1515151500EE00719719 /* IIMJulia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IIMJulia.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		34FC1519151500EE00719719 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		34FC151C151500EE00719719 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -38,7 +40,7 @@
 		34FC152C151500EE00719719 /* AppDelegate.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = AppDelegate.m; sourceTree = "<group>"; };
 		34FC152F151500EE00719719 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		34FC1536151501F400719719 /* complex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = complex.hpp; sourceTree = "<group>"; };
-		34FC15381515027C00719719 /* julia.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = julia.cpp; sourceTree = "<group>"; };
+		34FC15381515027C00719719 /* julia_random_iim.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = julia_random_iim.cpp; sourceTree = "<group>"; };
 		34FC153A151504FB00719719 /* extent.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = extent.hpp; sourceTree = "<group>"; };
 		34FC153B151505AE00719719 /* histogram.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = histogram.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -104,7 +106,8 @@
 				34FC153B151505AE00719719 /* histogram.hpp */,
 				341FB461151674C4008557E4 /* grid.hpp */,
 				3419C59315151DA700704386 /* julia.hpp */,
-				34FC15381515027C00719719 /* julia.cpp */,
+				34FC15381515027C00719719 /* julia_random_iim.cpp */,
+				341FB462151677F1008557E4 /* julia_miim.cpp */,
 				3419C596151529AC00704386 /* image.hpp */,
 				3419C594151529A500704386 /* image.cpp */,
 				34FC1520151500EE00719719 /* Supporting Files */,
@@ -190,8 +193,9 @@
 			files = (
 				34FC1526151500EE00719719 /* main.m in Sources */,
 				34FC152D151500EE00719719 /* AppDelegate.m in Sources */,
-				34FC15391515027C00719719 /* julia.cpp in Sources */,
+				34FC15391515027C00719719 /* julia_random_iim.cpp in Sources */,
 				3419C595151529A500704386 /* image.cpp in Sources */,
+				341FB463151677F1008557E4 /* julia_miim.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

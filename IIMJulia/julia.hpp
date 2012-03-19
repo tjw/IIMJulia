@@ -10,6 +10,7 @@
 #import "extent.hpp"
 #import "histogram.hpp"
 
-typedef void (^iim_julia_histogram_result)(const Histogram *histogram); // block must not hold onto the histogram
+typedef void (^julia_result)(const Histogram *histogram); // block must not hold onto the histogram
 
-extern void iim_julia_histogram(Complex c, Extent xExtent, Extent::Component yCenter, unsigned long width, unsigned long height, iim_julia_histogram_result result);
+extern void julia_random_iim(Complex c, Extent xExtent, Extent::Component yCenter, unsigned long width, unsigned long height, julia_result result);
+extern void julia_miim(Complex c, Extent xExtent, Extent::Component yCenter, unsigned long width, unsigned long height, julia_result result);

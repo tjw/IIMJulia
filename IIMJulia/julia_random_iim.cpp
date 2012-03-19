@@ -27,7 +27,7 @@ static Complex _iim_julia_preimage(OFRandomState *state, Complex u, Complex c)
     return w;
 }
 
-void iim_julia_histogram(Complex c, Extent xExtent, Extent::Component yCenter, unsigned long width, unsigned long height, iim_julia_histogram_result result)
+void julia_random_iim(Complex c, Extent xExtent, Extent::Component yCenter, unsigned long width, unsigned long height, julia_result result)
 {
     assert(width > 0);
     assert(height > 0);
