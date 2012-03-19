@@ -198,6 +198,9 @@ void julia_miim(Complex c, Extent xExtent, Extent::Component yCenter, unsigned l
             }
         }
         
-        delete histogram;
+        dispatch_async(resultQueue, ^{
+            result(histogram);
+            delete histogram;
+        });
     });
 }

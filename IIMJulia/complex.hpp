@@ -13,6 +13,11 @@ public:
     typedef double Component;
     Component r, i;
     
+    inline Complex(void) {
+        r = 0;
+        i = 0;
+    }
+    
     inline Complex(double inR, double inI) {
         r = inR;
         i = inI;
