@@ -8,6 +8,8 @@
 
 #import "julia.hpp"
 
+#import "bulk_queue.hpp"
+
 #import <stdio.h>
 #import <dispatch/dispatch.h>
 #import <CoreFoundation/CFDate.h>
@@ -16,191 +18,154 @@ extern "C" {
 #import <OmniFoundation/OFRandom.h>
 }
 
-template <typename T> class BulkQueue {
-public:
-    typedef struct _bucket {
-        struct _bucket *next;
-        unsigned long entryCount;
-        T *entries;
-    } bucket;
-    
-    BulkQueue(void) : _head(NULL), _tail(NULL) {
-        
-    }
-    
-    ~BulkQueue(void) {
-        bucket *b = _head;
-        while (b) {
-            bucket *next = b->next;
-            done(b);
-            b = next;
-        }
-    }
-    
-    inline bucket *dequeue(void) {
-        assert(_head); // should have enqueued something
-        
-        bucket *b = _head;
-        _head = _head->next;
-        if (_head == NULL) {
-            assert(b == _tail);
-            _tail = NULL; // empty now
-        }
-        
-        return b;
-    }
-    
-    inline bucket *enqueue(unsigned long max_entries) {
-        bucket *b = (typeof(b))malloc(sizeof(*b));
-        b->next = NULL;
-        b->entryCount = 0;
-        b->entries = (T *)malloc(sizeof(T) * max_entries);
-        
-        if (_tail) {
-            assert(_head != NULL); // not first bucket
-            assert(_tail->next == NULL); // not first bucket
-            _tail->next = b;
-        } else {
-            assert(_head == NULL); // first bucket
-            _head = b;
-            _tail = b;
-        }
-
-        return b;
-    }
-    
-    inline void done(const bucket *b) {
-        free(b->entries);
-        free((bucket *)b);
-    }
-    
-    inline unsigned long totalCount(void) const {
-        unsigned long totalCount = 0;
-        
-        const bucket *b = _head;
-        while (b) {
-            totalCount += b->entryCount;
-            b = b->next;
-        }
-        return totalCount;
-    }
-    
-private:
-    bucket *_head;
-    bucket *_tail;
-};
-
 typedef struct {
     Complex u;
     Complex::Component derivative;
 } JuliaEntry;
 
-typedef BulkQueue<JuliaEntry> JuliaQueue;
+class JuliaEntryBatch {
+public:
+    
+    unsigned long entryCount;
+    JuliaEntry *entries;
+    
+    inline JuliaEntryBatch(unsigned long count) {
+        entryCount = count;
+        entries = (typeof(entries))malloc(count * sizeof(*entries));
+    }
+    
+    ~JuliaEntryBatch(void) {
+        if (entries)
+            free(entries);
+    }
+    
+private:
+    JuliaEntryBatch(const JuliaEntryBatch &); // No implicit copies
+};
 
 static Complex _iim_julia_preimage(Complex u, Complex c)
 {
     return (u - c).sqrt();
 }
 
-static void plot_point(Complex u, Extent xExtent, Extent yExtent, double xStep, double yStep, Histogram *histogram)
-{
-    if (!xExtent.contains(u.r) || !yExtent.contains(u.i)) {
-        //fprintf(stderr, "    outside\n");
-        return;
-    }
-    
-    unsigned column = floor(xStep * (u.r - xExtent.min()));
-    unsigned row = floor(yStep * (u.i - yExtent.min()));
-    
-    //fprintf(stderr, "    incr %u, %u\n", column, row);
-    histogram->increment(column, row);
-}
+static Complex::Component MaxDerivative = 1e6;
 
+static void process_batch(dispatch_queue_t batchQueue, JuliaEntryBatch *inBatch, Complex c,
+                          dispatch_semaphore_t finishSemaphore, dispatch_queue_t finishQueue, void (^finish_batch)(JuliaEntryBatch *b))
+{
+    //fprintf(stderr, "processing %ld\n", inBatch->entryCount);
+    
+    unsigned long rangeStart = 0;
+    
+    while (rangeStart < inBatch->entryCount) {
+        // Break up the input batch to make sure we feed the concurrent queue
+        unsigned long rangeEnd = MIN(rangeStart + 0x20000, inBatch->entryCount);
+        
+        // Up to two entries, one for each of the two possible preimages
+        JuliaEntryBatch *outBatch = new JuliaEntryBatch(2*(rangeEnd - rangeStart));
+        unsigned long outEntryIndex = 0;
+        
+        for (unsigned long inEntryIndex = rangeStart; inEntryIndex < rangeEnd; inEntryIndex++) {
+            const JuliaEntry *inEntry = &inBatch->entries[inEntryIndex];
+            
+            Complex u = _iim_julia_preimage(inEntry->u, c);
+            Complex::Component derivative = 2*inEntry->derivative*u.length();
+            
+            //fprintf(stderr, "u: %f, %f d: %f\n", u.r, u.i, derivative);
+            
+            if (derivative < MaxDerivative) {
+                JuliaEntry *outEntry = &outBatch->entries[outEntryIndex];
+                
+                outEntry[0].u = u;
+                outEntry[0].derivative = derivative;            
+                outEntry[1].u = -u;
+                outEntry[1].derivative = derivative;
+                
+                outEntryIndex += 2;
+            }
+        }
+        
+        rangeStart = rangeEnd;
+        
+        outBatch->entryCount = outEntryIndex;
+        
+        dispatch_async(batchQueue, ^{
+            process_batch(batchQueue, outBatch, c, finishSemaphore, finishQueue, finish_batch);
+        });
+    }
+
+    dispatch_semaphore_wait(finishSemaphore, DISPATCH_TIME_FOREVER);
+    dispatch_async(finishQueue, ^{
+        finish_batch(inBatch);
+        dispatch_semaphore_signal(finishSemaphore);
+    });
+}
+                          
 void julia_miim(Complex c, Extent xExtent, Extent::Component yCenter, unsigned long width, unsigned long height, julia_result result)
 {
     assert(width > 0);
     assert(height > 0);
     assert(result);
     
+    // Make the y-axis scale to the x-axis
+    Extent::Component yLength = (xExtent.length() / width) * height;
+    Extent yExtent(yCenter - yLength/2, yCenter + yLength/2);
+    double xStep = width / xExtent.length();
+    double yStep = height / yExtent.length();
+
+    Histogram *histogram = new Histogram(width, height);
+
     dispatch_queue_t resultQueue = dispatch_get_current_queue();
     dispatch_retain(resultQueue);
     
     result = [result copy];
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        // Make the y-axis scale to the x-axis
-        Extent::Component yLength = (xExtent.length() / width) * height;
-        Extent yExtent(yCenter - yLength/2, yCenter + yLength/2);
-        double xStep = width / xExtent.length();
-        double yStep = height / yExtent.length();
-       
-        CFAbsoluteTime lastNotifyTime = CFAbsoluteTimeGetCurrent();
-        Histogram *histogram = new Histogram(width, height);
-        
-        // Set up a queue with an initial bucket with one random starting point.
-        JuliaQueue queue;
-        {
-            JuliaQueue::bucket *b = queue.enqueue(1);
-            b->entries[0].u = Complex(4 * OFRandomNextDouble() - 2, 4 * OFRandomNextDouble() - 2);
-            b->entries[0].derivative = 1;
-            b->entryCount = 1;
-        }
-        
-        Complex::Component MaxDerivative = 1e6;
-        
-        while (YES) {
-            // Dequeue one bucket and process it.
-            const JuliaQueue::bucket *toProcess = queue.dequeue();
-            if (toProcess->entryCount == 0) {
-                queue.done(toProcess);
-                break;
-            }
-            
-            JuliaQueue::bucket *toEnqueue = queue.enqueue(toProcess->entryCount * 2); // Up to two entries, one for each of the two possible preimages
-            
-            unsigned long outEntryIndex = 0;
-            for (unsigned long inEntryIndex = 0; inEntryIndex < toProcess->entryCount; inEntryIndex++) {
-                const JuliaEntry *inEntry = &toProcess->entries[inEntryIndex];
-                
-                Complex u = _iim_julia_preimage(inEntry->u, c);
-                Complex::Component derivative = 2*inEntry->derivative*u.length();
-                
-                //fprintf(stderr, "u: %f, %f d: %f\n", u.r, u.i, derivative);
-                
-                if (derivative < MaxDerivative) {
-                    JuliaEntry *outEntry = &toEnqueue->entries[outEntryIndex];
-                    
-                    outEntry[0].u = u;
-                    outEntry[0].derivative = derivative;
-                    plot_point(u, xExtent, yExtent, xStep, yStep, histogram);
-                    
-                    outEntry[1].u = -u;
-                    outEntry[1].derivative = derivative;
-                    plot_point(-u, xExtent, yExtent, xStep, yStep, histogram);
+    unsigned long maximumFinishingBatchCount = (3*[[NSProcessInfo processInfo] activeProcessorCount]);
+    dispatch_semaphore_t finishSemaphore = dispatch_semaphore_create(maximumFinishingBatchCount); // Only allow a certain number of blocks waiting to be finished
+    
+    dispatch_queue_t finishQueue = dispatch_queue_create("com.cocoatota.julia_miim.finish_batch", DISPATCH_QUEUE_SERIAL);
+    
+    dispatch_queue_t batchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0);
+    
+    // Initial batch with one random starting point.
+    JuliaEntryBatch *batch = new JuliaEntryBatch(1);
+    batch->entries[0].u = Complex(4 * OFRandomNextDouble() - 2, 4 * OFRandomNextDouble() - 2);
+    batch->entries[0].derivative = 1;
+    
+    __block CFAbsoluteTime lastNotifyTime = CFAbsoluteTimeGetCurrent();
 
-                    outEntryIndex += 2;
-                }
+    void (^finish_batch)(JuliaEntryBatch *batch) = [^(JuliaEntryBatch *batch){
+        fprintf(stderr, "finishing %ld\n", batch->entryCount);
+        for (unsigned long entryIndex = 0; entryIndex < batch->entryCount; entryIndex++) {
+            Complex u = batch->entries[entryIndex].u;
+
+            if (!xExtent.contains(u.r) || !yExtent.contains(u.i)) {
+                //fprintf(stderr, "    outside\n");
+                return;
             }
             
-            toEnqueue->entryCount = outEntryIndex;
-            queue.done(toProcess);
+            unsigned column = floor(xStep * (u.r - xExtent.min()));
+            unsigned row = floor(yStep * (u.i - yExtent.min()));
             
-            fprintf(stderr, "totalCount = %ld\n", queue.totalCount());
-            
-            CFAbsoluteTime currentTime = CFAbsoluteTimeGetCurrent();
-            if (currentTime - lastNotifyTime > 1) {
-                lastNotifyTime = currentTime;
-                const Histogram *resultHistogram = new Histogram(histogram);
-                dispatch_async(resultQueue, ^{
-                    result(resultHistogram);
-                    delete resultHistogram;
-                });
-            }
+            //fprintf(stderr, "    incr %u, %u\n", column, row);
+            histogram->increment(column, row);
         }
+        delete batch;
         
-        dispatch_async(resultQueue, ^{
-            result(histogram);
-            delete histogram;
-        });
+        // TODO: For very short queues, we might not flush to the result queue (if the whole operation take too little time). Need to work on the totally-done checks.
+        CFAbsoluteTime currentTime = CFAbsoluteTimeGetCurrent();
+        if (currentTime - lastNotifyTime > 1) {
+            fprintf(stderr, "sending partial results\n");
+            lastNotifyTime = currentTime;
+            const Histogram *resultHistogram = new Histogram(histogram);
+            dispatch_async(resultQueue, ^{
+                result(resultHistogram);
+                delete resultHistogram;
+            });
+        }
+    } copy];
+    
+    dispatch_async(batchQueue, ^{
+        process_batch(batchQueue, batch, c, finishSemaphore, finishQueue, finish_batch);
     });
 }
