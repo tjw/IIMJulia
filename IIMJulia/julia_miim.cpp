@@ -8,8 +8,6 @@
 
 #import "julia.hpp"
 
-#import "bulk_queue.hpp"
-
 #import <stdio.h>
 #import <dispatch/dispatch.h>
 #import <CoreFoundation/CFDate.h>
