@@ -11,6 +11,7 @@
 #import <stdio.h>
 #import <dispatch/dispatch.h>
 #import <CoreFoundation/CFDate.h>
+#import "image.hpp"
 
 extern "C" {
 #import <OmniFoundation/OFRandom.h>
@@ -86,10 +87,11 @@ void julia_random_iim(Complex c, Extent xExtent, Extent::Component yCenter, unsi
             CFAbsoluteTime currentTime = CFAbsoluteTimeGetCurrent();
             if (currentTime - lastNotifyTime > 1) {
                 lastNotifyTime = currentTime;
-                const Histogram *resultHistogram = new Histogram(histogram);
+                
+                CGImageRef imageRef = create_bw_image(histogram);
                 dispatch_async(resultQueue, ^{
-                    result(resultHistogram);
-                    delete resultHistogram;
+                    result(imageRef);
+                    CFRelease(imageRef);
                 });
             }
         }

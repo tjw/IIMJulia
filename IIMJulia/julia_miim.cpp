@@ -11,6 +11,7 @@
 #import <stdio.h>
 #import <dispatch/dispatch.h>
 #import <CoreFoundation/CFDate.h>
+#import "image.hpp"
 
 extern "C" {
 #import <OmniFoundation/OFRandom.h>
@@ -155,10 +156,10 @@ void julia_miim(Complex c, Extent xExtent, Extent::Component yCenter, unsigned l
         if (currentTime - lastNotifyTime > 1) {
             fprintf(stderr, "sending partial results\n");
             lastNotifyTime = currentTime;
-            const Histogram *resultHistogram = new Histogram(histogram);
+            CGImageRef imageRef = create_bw_image(histogram);
             dispatch_async(resultQueue, ^{
-                result(resultHistogram);
-                delete resultHistogram;
+                result(imageRef);
+                CFRelease(imageRef);
             });
         }
     } copy];

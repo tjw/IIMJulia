@@ -9,7 +9,6 @@
 #import "AppDelegate.h"
 
 #import "julia.hpp"
-#import "image.hpp"
 
 @interface AppDelegate ()
 {
@@ -58,10 +57,10 @@
 {
     _c = Complex(-0.74543, 0.11301);
     
-    julia_miim(_c, Extent(-1.55, 1.55), 0.0/*yCenter*/, 4*2048, 4*1536, ^(const Histogram *H){
+    julia_miim(_c, Extent(-1.55, 1.55), 0.0/*yCenter*/, 4*2048, 4*1536, ^(CGImageRef imageRef){
         CGImageRelease(_imageRef);
-        _imageRef = create_bw_image(H);
-        _image = [[NSImage alloc] initWithCGImage:_imageRef size:CGSizeMake(H->width(), H->height())];
+        _imageRef = (CGImageRef)CFRetain(imageRef);
+        _image = [[NSImage alloc] initWithCGImage:_imageRef size:CGSizeMake(CGImageGetWidth(_imageRef), CGImageGetHeight(_imageRef))];
         _imageView.image = _image;
     });
 }
