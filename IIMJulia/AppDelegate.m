@@ -55,9 +55,16 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    NSScreen *screen = [NSScreen mainScreen];
+    NSRect frame = [screen frame];
+    frame = [screen convertRectToBacking:frame];
+    NSLog(@"screen size %@", NSStringFromRect(frame));
+    
+    CGSize imageSize = frame.size;
+    
     _c = Complex(-0.74543, 0.11301);
     
-    julia_miim(_c, Extent(-1.55, 1.55), 0.0/*yCenter*/, 4*2048, 4*1536, ^(CGImageRef imageRef){
+    julia_miim(_c, Extent(-1.55, 1.55), 0.0/*yCenter*/, 4*imageSize.width, 4*imageSize.height, ^(CGImageRef imageRef){
         CGImageRelease(_imageRef);
         _imageRef = (CGImageRef)CFRetain(imageRef);
         _image = [[NSImage alloc] initWithCGImage:_imageRef size:CGSizeMake(CGImageGetWidth(_imageRef), CGImageGetHeight(_imageRef))];

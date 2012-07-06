@@ -16,14 +16,14 @@ public:
     inline Histogram(const Histogram *original) : Grid<unsigned long>(original) {
     }
     
-    inline unsigned increment(unsigned x, unsigned y) {
+    inline unsigned long increment(unsigned x, unsigned y) {
         unsigned long *bucket = set_at(x, y);
         unsigned long count = *bucket + 1;
         *bucket = count;
         return count;
     }
     
-    inline unsigned long count_at(unsigned x, unsigned y) const {
+    inline unsigned long count_at(unsigned long x, unsigned long y) const {
         const unsigned long *bucket = get_at(x, y);
         return *bucket;
     }
